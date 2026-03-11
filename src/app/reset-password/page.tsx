@@ -55,7 +55,7 @@ function ResetPasswordForm() {
         return (
             <div className="text-center p-6 bg-neutral-900/50 ring-1 ring-inset ring-white/10 rounded-2xl">
                 <p className="text-red-400 mb-4">{error}</p>
-                <Link href="/forgot-password" className="text-sm text-white underline">
+                <Link to="/forgot-password" className="text-sm text-white underline">
                     Request a new password reset link
                 </Link>
             </div>
@@ -72,7 +72,7 @@ function ResetPasswordForm() {
                 </div>
                 <h2 className="text-xl font-bold text-white mb-2">Password Reset!</h2>
                 <p className="text-neutral-400 text-sm mb-6">Your password has been changed successfully. Redirecting you to login...</p>
-                <Link href="/login" className="text-sm px-4 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition-colors">
+                <Link to="/login" className="text-sm px-4 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition-colors">
                     Go to Login Now
                 </Link>
             </div>

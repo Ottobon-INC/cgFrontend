@@ -297,7 +297,7 @@ function ExpandedCard({
                             }`}>
                         {copied ? <CheckIcon /> : <CopyIcon />}<span>{copied ? 'Copied!' : 'Copy'}</span>
                     </button>
-                    <Link href={`/components/${component.id}`} onClick={e => e.stopPropagation()}
+                    <Link to={`/components/${component.id}`} onClick={e => e.stopPropagation()}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-900 hover:bg-white ring-1 ring-inset ring-white/20 transition-all duration-150">
                         View <ArrowIcon />
                     </Link>
@@ -450,7 +450,7 @@ export function ComponentCard({ component }: ComponentCardProps) {
     return (
         <>
             <Link
-                href={`/components/${component.id}`}
+                to={`/components/${component.id}`}
                 className={`block transition-opacity duration-200 ${isExpanded ? 'opacity-30' : 'opacity-100'}`}
                 tabIndex={isExpanded ? -1 : 0}
             >

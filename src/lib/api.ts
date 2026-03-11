@@ -19,7 +19,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 }
 
 async function get<T>(path: string): Promise<T> {
-    const res = await fetch(`${API_URL}${path}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${API_URL}${path}`);
     const json = (await res.json()) as ApiResponse<T>;
     if (!json.success) throw new Error(json.error);
     return json.data;

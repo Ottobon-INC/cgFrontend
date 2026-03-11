@@ -80,7 +80,7 @@ export default function LoginPage() {
                             <label className="block text-xs font-medium text-hub-muted uppercase tracking-wider">
                                 Password
                             </label>
-                            <Link href="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                            <Link to="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
                                 Forgot password?
                             </Link>
                         </div>
@@ -104,7 +104,7 @@ export default function LoginPage() {
 
                     <p className="text-center text-xs text-hub-muted mt-4">
                         Don't have an account?{' '}
-                        <Link href="/register" className="text-blue-400 hover:text-blue-300 transition-colors">
+                        <Link to="/register" className="text-blue-400 hover:text-blue-300 transition-colors">
                             Request Access
                         </Link>
                     </p>
