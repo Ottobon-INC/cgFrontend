@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # Stage 2: Builder
 FROM node:22-alpine AS builder
@@ -34,12 +34,12 @@ RUN adduser --system --uid 1001 nextjs
 
 # Copy the standalone output and static files
 # Set correct permission for prerender cache
+# Note: public directory is commented out as it does not currently exist in the repo
 # COPY --from=builder /app/public ./public
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
 # Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
@@ -47,7 +47,7 @@ USER nextjs
 
 EXPOSE 3500
 
-ENV PORT=3001
+ENV PORT=3500
 ENV HOSTNAME="0.0.0.0"
 
 # server.js is created by next build from the standalone output
