@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, Plus, Menu, X } from 'lucide-react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 interface CategoryItem {
     id: string;
@@ -31,8 +31,11 @@ export function Sidebar({
     categories = [],
     onCategoriesChanged,
 }: SidebarProps) {
-    const pathname = usePathname();
-    const { data: session } = useSession();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const pathname = location.pathname;
+    const { user, logout } = useAuth();
+    const session = user ? { user } : null;
 
     const [addingCategory, setAddingCategory] = useState(false);
     const [newCategoryLabel, setNewCategoryLabel] = useState('');
@@ -264,7 +267,7 @@ export function Sidebar({
                         </div>
                     </div>
                     <button
-                        onClick={() => signOut({ callbackUrl: '/login' })}
+                        onClick={() => { logout(); navigate('/login'); }}
                         className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium text-hub-muted hover:text-red-400 hover:bg-red-400/5 border border-transparent hover:border-red-400/20 transition-all duration-200 group"
                     >
                         <LogOut className="w-3.5 h-3.5 group-hover:text-red-400 transition-colors" />

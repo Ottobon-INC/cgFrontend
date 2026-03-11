@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import type { SandpackTemplate } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 const STACKS: { id: SandpackTemplate; label: string; icon: string; color: string }[] = [
     { id: 'vite-react-ts', label: 'React · TS', icon: '⚛', color: 'text-sky-400 border-sky-400/30 bg-sky-400/5' },
@@ -30,8 +30,9 @@ interface Props {
 }
 
 export function NewComponentModal({ onSuccess, categories = [], onCategoryCreated }: Props) {
-    const { data: session } = useSession();
-    const router = useRouter();
+    const { user } = useAuth();
+    const session = user ? { user } : null;
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -176,7 +177,8 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
             setSelectedStack('vite-react-ts');
             setSelectedCategory('uncategorized');
             setOpen(false);
-            router.refresh();
+            // Refresh strategy: in Vite, we just trigger onSuccess which should re-fetch.
+            // router.refresh() does not exist in react-router-dom
             onSuccess?.();
         } catch (err) {
             setError('Could not reach the API. Is the backend server running on port 3000?');

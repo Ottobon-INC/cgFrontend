@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Component } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 const INTENT_DELAY = 400;
 const EXPANDED_WIDTH = 560;
 const EXPANDED_HEIGHT = 280;
@@ -378,7 +378,8 @@ function CardBody({ component, liked, likes }: { component: Component; liked: bo
 
 // ─── Main ComponentCard ───────────────────────────────────────────────────────
 export function ComponentCard({ component }: ComponentCardProps) {
-    const { data: session } = useSession();
+    const { user } = useAuth();
+    const session = user ? { user } : null;
     const userId = (session?.user as { id?: string })?.id;
 
     const [likes, setLikes] = useState(component.likes);

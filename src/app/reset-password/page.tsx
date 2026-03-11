@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function ResetPasswordForm() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
 
     const [password, setPassword] = useState('');
@@ -42,7 +41,7 @@ function ResetPasswordForm() {
             } else {
                 setSuccess(true);
                 setTimeout(() => {
-                    router.push('/login');
+                    navigate('/login');
                 }, 3000);
             }
         } catch (err) {

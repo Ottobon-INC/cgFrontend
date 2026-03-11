@@ -1,9 +1,12 @@
 'use client';
 
 import { LogOut } from 'lucide-react';
-import { signOut } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function PendingApprovalPage() {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
     return (
         <div className="min-h-screen bg-hub-bg flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-hub-surface border border-hub-border rounded-xl p-8 shadow-2xl text-center">
@@ -26,7 +29,7 @@ export default function PendingApprovalPage() {
                 </div>
 
                 <button
-                    onClick={() => signOut({ callbackUrl: '/login' })}
+                    onClick={() => { logout(); navigate('/login'); }}
                     className="flex items-center justify-center gap-2 w-full text-sm font-medium text-hub-muted hover:text-white transition-colors py-2"
                 >
                     <LogOut className="w-4 h-4" />

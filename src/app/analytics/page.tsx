@@ -1,12 +1,26 @@
+import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { LeaderboardTable } from '@/components/LeaderboardTable';
 import { HoursBarChart } from '@/components/HoursBarChart';
-import { LeaderboardEntry } from '@/types';
+import type { LeaderboardEntry } from '@/types';
 
-export default async function AnalyticsPage() {
-    let leaderboard: LeaderboardEntry[] = [];
-    try { leaderboard = await api.analytics.leaderboard(); }
-    catch { /* empty */ }
+export default function AnalyticsPage() {
+    const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchLeaderboard = async () => {
+            try {
+                const data = await api.analytics.leaderboard();
+                setLeaderboard(data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchLeaderboard();
+    }, []);
 
     const totalHours = leaderboard.reduce((sum, e) => sum + e.total_hours_saved, 0);
     const totalInjections = leaderboard.reduce((sum, e) => sum + e.components_injected, 0);
@@ -16,6 +30,10 @@ export default async function AnalyticsPage() {
         name: `Eng ${i + 1}`,
         hours: parseFloat(e.total_hours_saved.toFixed(1)),
     }));
+
+    if (loading) {
+        return <div className="p-10 max-w-[1400px] text-neutral-500">Loading analytics...</div>;
+    }
 
     return (
         <div className="p-10 max-w-[1400px]">

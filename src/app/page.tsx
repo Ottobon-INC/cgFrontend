@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { ComponentCard } from '@/components/ComponentCard';
 import { NewComponentModal } from '@/components/NewComponentModal';
 import { Sidebar } from '@/components/Sidebar';
 import { CommandPalette } from '@/components/CommandPalette';
 import { Component } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 export interface CategoryItem {
     id: string;
@@ -18,9 +18,9 @@ export interface CategoryItem {
 }
 
 function HomeContent() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const { data: session } = useSession();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const { user } = useAuth();
     const activeCategory = searchParams.get('category') ?? 'all';
 
     const [components, setComponents] = useState<Component[]>([]);
@@ -45,7 +45,7 @@ function HomeContent() {
         try {
             const url = new URL(`${API_URL}/api/components/list`);
             if (activeCategory !== 'all') url.searchParams.set('category', activeCategory);
-            if (session?.user) url.searchParams.set('userId', (session.user as { id?: string }).id || '');
+            if (user?.id) url.searchParams.set('userId', user.id);
 
             const res = await fetch(url.toString(), { cache: 'no-store' });
             if (!res.ok) throw new Error(`API returned ${res.status}`);
@@ -61,7 +61,7 @@ function HomeContent() {
         } finally {
             setLoading(false);
         }
-    }, [activeCategory, session]);
+    }, [activeCategory, user?.id]);
 
     useEffect(() => { fetchCategories(); }, [fetchCategories]);
     useEffect(() => { fetchComponents(); }, [fetchComponents]);
@@ -73,7 +73,7 @@ function HomeContent() {
         } else {
             params.set('category', cat);
         }
-        router.push(`/?${params.toString()}`);
+        navigate(`/?${params.toString()}`);
     };
 
     const allItems: CategoryItem[] = [{ id: 'all', label: 'All Components', icon: '❖' }, ...categories];

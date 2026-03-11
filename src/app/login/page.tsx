@@ -1,9 +1,8 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useNavigate, Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -11,25 +10,34 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        const res = await signIn('credentials', {
-            redirect: false,
-            email,
-            password,
-        });
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            const res = await fetch(`${API_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
 
-        if (res?.error) {
-            setError('Invalid credentials');
+            const json = await res.json();
+
+            if (!res.ok || !json.success) {
+                setError(json.error || 'Invalid credentials');
+                setLoading(false);
+            } else {
+                login(json.data); // Update AuthContext and LocalStorage
+                navigate('/'); // Use React Router
+            }
+        } catch (err) {
+            setError('Network error occurred');
             setLoading(false);
-        } else {
-            router.push('/');
-            router.refresh(); // Force a refresh to update session state across the app
         }
     };
 

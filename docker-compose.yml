@@ -1,25 +1,19 @@
 version: '3.8'
 
 services:
-  component-hub-frontend:
+  frontend:
+    container_name: component-hub-frontend
     build:
       context: .
-      dockerfile: Dockerfile
       args:
-        # Build-time argument for Next.js public variables
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3500}
-    container_name: component-hub-frontend
+        # Provide the backend API URL here for Vite to bundle during the build phase.
+        # NOTE: Since this is evaluated by the user's browser, if the backend is hosted
+        # on a remote server (e.g., your Putty droplet), this URL MUST be the public IP or 
+        # domain name of your backend (e.g., http://your-server-ip:8500).
+        - VITE_API_URL=http://localhost:8500
+        - NEXT_PUBLIC_API_URL=http://localhost:8500
     ports:
-      - "3500:3500"
+      - "3500:80"    # Expose container's port 80 to the host's port 3500
+    restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3500}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your_super_secret_jwt_string_at_least_32_chars_long}
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3500}
-    restart: unless-stopped
-    # Depending on the backend container, you might uncomment the below lines later
-    # depends_on:
-    #   - backend
-
-volumes:
-  frontend_data:

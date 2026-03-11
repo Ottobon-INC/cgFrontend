@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { CheckCircle2, User, Loader2 } from 'lucide-react';
 
 interface PendingUser {
@@ -11,12 +11,13 @@ interface PendingUser {
 }
 
 export default function AdminDashboard() {
-    const { data: session } = useSession();
+    const { user } = useAuth();
+    const session = user ? { user } : null;
     const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [approvingId, setApprovingId] = useState<string | null>(null);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
     const fetchPendingUsers = async () => {
         try {

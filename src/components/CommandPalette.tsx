@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Command } from 'cmdk';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import type { SearchResult } from '@/types';
 import { api } from '@/lib/api';
 
@@ -11,7 +11,7 @@ export function CommandPalette() {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
@@ -41,7 +41,7 @@ export function CommandPalette() {
 
     const handleSelect = (id: string) => {
         setOpen(false); setQuery(''); setResults([]);
-        router.push(`/components/${id}`);
+        navigate(`/components/${id}`);
     };
 
     if (!open) return null;

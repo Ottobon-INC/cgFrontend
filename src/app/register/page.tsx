@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useNavigate, Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 export default function RegisterPage() {
@@ -10,7 +9,7 @@ export default function RegisterPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -18,7 +17,7 @@ export default function RegisterPage() {
         setLoading(true);
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
             const res = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -32,7 +31,7 @@ export default function RegisterPage() {
                 setLoading(false);
             } else {
                 // Instantly redirect to login so they can authenticate and get the JWT cookie
-                router.push('/login?registered=true');
+                navigate('/login?registered=true');
             }
         } catch (err) {
             setError('Network error occurred');

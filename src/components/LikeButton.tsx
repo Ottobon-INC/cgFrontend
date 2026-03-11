@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useSession } from 'next-auth/react';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+import { useAuth } from '@/contexts/AuthContext';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 interface Props {
     componentId: string;
@@ -11,8 +10,8 @@ interface Props {
 }
 
 export function LikeButton({ componentId, initialLikes }: Props) {
-    const { data: session } = useSession();
-    const userId = (session?.user as { id?: string })?.id;
+    const { user } = useAuth();
+    const userId = user?.id;
 
     const [likes, setLikes] = useState(initialLikes);
     const [liked, setLiked] = useState(false);

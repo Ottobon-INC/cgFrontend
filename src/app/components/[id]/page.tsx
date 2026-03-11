@@ -1,12 +1,10 @@
-import { notFound } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { LivePlayground } from '@/components/LivePlayground';
 import { CopyCodeButton } from '@/components/CopyCodeButton';
 import { LikeButton } from '@/components/LikeButton';
-
-interface Props {
-    params: { id: string };
-}
+import type { Component } from '@/types';
 
 const STACK_LABELS: Record<string, string> = {
     'vite-react-ts': 'React · TS',
@@ -18,10 +16,33 @@ const STACK_LABELS: Record<string, string> = {
     'vanilla': 'Vanilla JS',
 };
 
-export default async function ComponentPage({ params }: Props) {
-    let component;
-    try { component = await api.components.get(params.id); }
-    catch { notFound(); }
+export default function ComponentPage() {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const [component, setComponent] = useState<Component | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!id) return;
+        const fetchComponent = async () => {
+            try {
+                const data = await api.components.get(id);
+                setComponent(data);
+            } catch (err) {
+                console.error(err);
+                navigate('/');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchComponent();
+    }, [id, navigate]);
+
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center text-neutral-500">Loading...</div>;
+    }
+
+    if (!component) return null;
 
     const stackLabel = STACK_LABELS[component.stack] ?? component.stack;
 

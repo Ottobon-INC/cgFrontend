@@ -5,7 +5,7 @@
 
 import type { ApiResponse, Component, SearchResult, Bounty, LeaderboardEntry } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 async function post<T>(path: string, body: unknown): Promise<T> {
     const res = await fetch(`${API_URL}${path}`, {

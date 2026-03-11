@@ -1,15 +1,16 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { ComponentCard } from '@/components/ComponentCard';
 import { NewComponentModal } from '@/components/NewComponentModal';
 import { Component } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 export default function HomePage() {
-    const { data: session } = useSession();
+    const { user } = useAuth();
+    const session = user ? { user } : null;
     const [components, setComponents] = useState<Component[]>([]);
     const [loading, setLoading] = useState(true);
     const [apiError, setApiError] = useState<string | null>(null);
