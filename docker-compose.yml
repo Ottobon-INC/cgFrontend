@@ -7,15 +7,15 @@ services:
       dockerfile: Dockerfile
       args:
         # Build-time argument for Next.js public variables
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3000}
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3500}
     container_name: component-hub-frontend
     ports:
-      - "3002:3001"
+      - "3500:3500"
     environment:
       - NODE_ENV=production
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3002}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3500}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your_super_secret_jwt_string_at_least_32_chars_long}
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3500}
     restart: unless-stopped
     # Depending on the backend container, you might uncomment the below lines later
     # depends_on:
