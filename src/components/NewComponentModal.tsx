@@ -7,14 +7,14 @@ import type { SandpackTemplate } from '@/types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
-const STACKS: { id: SandpackTemplate; label: string; icon: string; color: string }[] = [
-    { id: 'vite-react-ts', label: 'React · TS', icon: '⚛', color: 'text-sky-400 border-sky-400/30 bg-sky-400/5' },
-    { id: 'vite-react', label: 'React · JS', icon: '⚛', color: 'text-yellow-400 border-yellow-400/30 bg-yellow-400/5' },
-    { id: 'vue', label: 'Vue 3', icon: '💚', color: 'text-green-400 border-green-400/30 bg-green-400/5' },
-    { id: 'svelte', label: 'Svelte', icon: '🔶', color: 'text-orange-400 border-orange-400/30 bg-orange-400/5' },
-    { id: 'angular', label: 'Angular', icon: '🔺', color: 'text-red-400 border-red-400/30 bg-red-400/5' },
-    { id: 'static', label: 'HTML/CSS', icon: '🌐', color: 'text-blue-400 border-blue-400/30 bg-blue-400/5' },
-    { id: 'vanilla', label: 'Vanilla JS', icon: '🟨', color: 'text-yellow-300 border-yellow-300/30 bg-yellow-300/5' },
+const STACKS: { id: SandpackTemplate; label: string; icon: string; color: string; activeRing: string }[] = [
+    { id: 'vite-react-ts', label: 'React · TS', icon: '⚛', color: 'text-sky-400', activeRing: 'ring-sky-500/50 border-sky-500/50 bg-sky-500/10' },
+    { id: 'vite-react', label: 'React · JS', icon: '⚛', color: 'text-yellow-400', activeRing: 'ring-yellow-500/50 border-yellow-500/50 bg-yellow-500/10' },
+    { id: 'vue', label: 'Vue 3', icon: '💚', color: 'text-green-400', activeRing: 'ring-green-500/50 border-green-500/50 bg-green-500/10' },
+    { id: 'svelte', label: 'Svelte', icon: '🔶', color: 'text-orange-400', activeRing: 'ring-orange-500/50 border-orange-500/50 bg-orange-500/10' },
+    { id: 'angular', label: 'Angular', icon: '🔺', color: 'text-red-400', activeRing: 'ring-red-500/50 border-red-500/50 bg-red-500/10' },
+    { id: 'static', label: 'HTML/CSS', icon: '🌐', color: 'text-blue-400', activeRing: 'ring-blue-500/50 border-blue-500/50 bg-blue-500/10' },
+    { id: 'vanilla', label: 'Vanilla JS', icon: '🟨', color: 'text-yellow-300', activeRing: 'ring-yellow-400/50 border-yellow-400/50 bg-yellow-400/10' },
 ];
 
 interface CategoryItem {
@@ -56,7 +56,6 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
         css_code: '',
     });
 
-    // For Toggling between JS/TS and CSS in the modal
     const [codeTab, setCodeTab] = useState<'component' | 'css'>('component');
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,17 +103,14 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
         setFieldErrors({});
         setLoading(true);
 
-        // 1. Merge Component + CSS Code seamlessly behind the scenes
         let finalCode = form.raw_code;
         if (form.css_code.trim()) {
             finalCode += `\n\n/* styles.css */\n${form.css_code}`;
         }
 
-        // 2. Handle optional image upload via base64
         let uploadedImageUrl: string | undefined = undefined;
         if (imageFile) {
             try {
-                // Encode the image to base64 using FileReader
                 const base64Data = await new Promise<string>((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result as string);
@@ -130,7 +126,7 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
 
                 const uploadJson = await uploadRes.json();
                 if (uploadRes.ok && uploadJson.success) {
-                    uploadedImageUrl = uploadJson.data.url; // already a full Supabase public URL
+                    uploadedImageUrl = uploadJson.data.url;
                 } else {
                     throw new Error(uploadJson.error || 'Failed to upload image');
                 }
@@ -142,7 +138,6 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
             }
         }
 
-        // 3. Submit component data
         try {
             const res = await fetch(`${API_URL}/api/components`, {
                 method: 'POST',
@@ -169,7 +164,6 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
                 return;
             }
 
-            // Cleanup form state
             if (imagePreview) URL.revokeObjectURL(imagePreview);
             setForm({ title: '', description: '', raw_code: '', css_code: '' });
             setImageFile(null);
@@ -177,11 +171,9 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
             setSelectedStack('vite-react-ts');
             setSelectedCategory('uncategorized');
             setOpen(false);
-            // Refresh strategy: in Vite, we just trigger onSuccess which should re-fetch.
-            // router.refresh() does not exist in react-router-dom
             onSuccess?.();
         } catch (err) {
-            setError('Could not reach the API. Is the backend server running on port 3000?');
+            setError('Could not reach the API. Is the backend server running?');
             console.error('[NewComponentModal] Submit error:', err);
         } finally {
             setLoading(false);
@@ -190,219 +182,243 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
 
     return (
         <>
-            {/* Trigger Button */}
             <button
                 onClick={() => setOpen(true)}
-                className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 ring-1 ring-inset ring-white/20 shadow-sm transition-all text-sm font-medium px-4 py-2 rounded-lg"
+                className="bg-white text-black hover:bg-neutral-200 shadow-sm transition-all text-sm font-semibold px-4 py-2 rounded-lg inline-flex items-center gap-2"
             >
-                + New Component
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+                New Component
             </button>
 
-            {/* Modal Overlay */}
             {open && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6"
                     onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
                 >
-                    <div className="bg-[#0A0A0C] border border-white/10 rounded-xl w-full max-w-lg mx-4 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="mb-5">
-                            <h2 className="text-hub-text text-lg font-bold">Add Component to Registry</h2>
-                            <p className="text-hub-muted text-xs mt-1">
-                                Submit a reusable component. It will be searchable by the entire team via AI semantic search.
+                    <div className="bg-[#0A0A0C] border border-white/10 ring-1 ring-white/5 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        {/* Header */}
+                        <div className="px-6 py-5 border-b border-white/5 bg-white/[0.02]">
+                            <h2 className="text-white text-xl font-semibold tracking-tight">Add Component to Registry</h2>
+                            <p className="text-neutral-400 text-sm mt-1">
+                                Submit a reusable component to make it searchable by the team.
                             </p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Stack Picker */}
-                            <div>
-                                <label className="block text-xs font-semibold text-hub-muted mb-2">Framework / Stack *</label>
-                                <div className="grid grid-cols-4 gap-1.5">
-                                    {STACKS.map((s) => (
-                                        <button
-                                            key={s.id}
-                                            type="button"
-                                            onClick={() => setSelectedStack(s.id)}
-                                            className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md border text-xs font-medium transition-all ${selectedStack === s.id
-                                                ? s.color + ' ring-1 ring-current'
-                                                : 'border-hub-border text-hub-muted hover:border-white/20'
-                                                }`}
-                                        >
-                                            <span className="text-base">{s.icon}</span>
-                                            <span>{s.label}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                        {/* Scrollable Form Body */}
+                        <div className="overflow-y-auto px-6 py-6 custom-scrollbar">
+                            <form id="component-form" onSubmit={handleSubmit} className="space-y-6">
+                                
+                                {/* Stack & Category Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Category Picker */}
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-sm font-medium text-neutral-300">Category</label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setCreatingCategory(!creatingCategory)}
+                                                className="text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                                            >
+                                                {creatingCategory ? 'Cancel' : '+ New Category'}
+                                            </button>
+                                        </div>
 
-                            {/* Category Picker */}
-                            <div>
-                                <div className="flex items-center justify-between mb-1.5">
-                                    <label className="text-xs font-semibold text-hub-muted">Category *</label>
-                                    <button
-                                        type="button"
-                                        onClick={() => setCreatingCategory(!creatingCategory)}
-                                        className="text-[10px] text-blue-400 hover:text-blue-300 font-medium transition-colors"
-                                    >
-                                        {creatingCategory ? '← Back' : '+ New Category'}
-                                    </button>
-                                </div>
-
-                                {creatingCategory ? (
-                                    <div className="space-y-1.5">
-                                        <input
-                                            value={newCatLabel}
-                                            onChange={e => { setNewCatLabel(e.target.value); setNewCatError(null); }}
-                                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleCreateCategory(); } }}
-                                            placeholder="e.g. Charts, Tables, Modals..."
-                                            autoFocus
-                                            className="w-full bg-hub-surface border border-hub-border rounded-md px-3 py-2 text-hub-text text-sm placeholder:text-hub-muted/50 focus:outline-none focus:border-white/30 transition-colors"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={handleCreateCategory}
-                                            disabled={newCatLoading || !newCatLabel.trim()}
-                                            className="bg-white text-black text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-gray-200 disabled:opacity-50 transition-colors"
-                                        >
-                                            {newCatLoading ? 'Creating...' : 'Create Category'}
-                                        </button>
-                                        {newCatError && <p className="text-red-400 text-xs">{newCatError}</p>}
+                                        {creatingCategory ? (
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        value={newCatLabel}
+                                                        onChange={e => { setNewCatLabel(e.target.value); setNewCatError(null); }}
+                                                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleCreateCategory(); } }}
+                                                        placeholder="e.g. Navigation"
+                                                        autoFocus
+                                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleCreateCategory}
+                                                        disabled={newCatLoading || !newCatLabel.trim()}
+                                                        className="bg-white text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-neutral-200 disabled:opacity-50 transition-colors whitespace-nowrap"
+                                                    >
+                                                        {newCatLoading ? '...' : 'Add'}
+                                                    </button>
+                                                </div>
+                                                {newCatError && <p className="text-red-400 text-xs">{newCatError}</p>}
+                                            </div>
+                                        ) : (
+                                            <div className="relative">
+                                                <select
+                                                    value={selectedCategory}
+                                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all cursor-pointer"
+                                                >
+                                                    <option value="uncategorized">Uncategorized</option>
+                                                    {categories.map(opt => (
+                                                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                                    ))}
+                                                </select>
+                                                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-neutral-400">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                ) : (
-                                    <select
-                                        value={selectedCategory}
-                                        onChange={(e) => setSelectedCategory(e.target.value)}
-                                        className="w-full bg-hub-surface border border-hub-border rounded-md px-3 py-2 text-hub-text text-sm focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
-                                    >
-                                        <option value="uncategorized">Uncategorized</option>
-                                        {categories.map(opt => (
-                                            <option key={opt.id} value={opt.id}>{opt.label}</option>
-                                        ))}
-                                    </select>
-                                )}
-                            </div>
 
-                            {/* Title */}
-                            <div>
-                                <label className="block text-xs font-semibold text-hub-muted mb-1.5">Component Name *</label>
-                                <input
-                                    name="title"
-                                    value={form.title}
-                                    onChange={handleChange}
-                                    placeholder="e.g. StripePaymentForm"
-                                    className="w-full bg-hub-surface border border-hub-border rounded-md px-3 py-2 text-hub-text text-sm placeholder:text-hub-muted/50 focus:outline-none focus:border-white/30 transition-colors"
-                                />
-                                {fieldErrors.title && <p className="text-red-400 text-xs mt-1">{fieldErrors.title[0]}</p>}
-                            </div>
-
-                            {/* Description */}
-                            <div>
-                                <label className="block text-xs font-semibold text-hub-muted mb-1.5">Description *</label>
-                                <textarea
-                                    name="description"
-                                    value={form.description}
-                                    onChange={handleChange}
-                                    rows={2}
-                                    placeholder="What does this component do? When should it be used?"
-                                    className="w-full bg-hub-surface border border-hub-border rounded-md px-3 py-2 text-hub-text text-sm placeholder:text-hub-muted/50 focus:outline-none focus:border-white/30 transition-colors resize-none"
-                                />
-                                {fieldErrors.description && <p className="text-red-400 text-xs mt-1">{fieldErrors.description[0]}</p>}
-                            </div>
-
-                            {/* Image Upload */}
-                            <div>
-                                <label className="block text-xs font-semibold text-hub-muted mb-1.5">Preview Image (optional)</label>
-                                <label className="flex items-center justify-center w-full h-24 px-4 transition bg-hub-surface border-2 border-dashed border-hub-border rounded-md appearance-none cursor-pointer hover:border-white/30 focus:outline-none overflow-hidden relative group">
-                                    <input
-                                        type="file"
-                                        name="image"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={handleImageChange}
-                                    />
-                                    {imagePreview ? (
-                                        <>
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" />
-                                            <span className="relative z-10 flex items-center space-x-2 text-sm text-white drop-shadow-md bg-black/50 px-3 py-1.5 rounded-full backdrop-blur-sm">
-                                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-                                                <span className="font-medium">Change image</span>
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <span className="flex items-center space-x-2 text-sm text-hub-muted/60">
-                                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                                            <span className="font-medium">Click to browse or drop an image</span>
-                                        </span>
-                                    )}
-                                </label>
-                            </div>
-
-                            {/* Code */}
-                            <div>
-                                <div className="flex items-center gap-4 mb-2 border-b border-hub-border pb-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => setCodeTab('component')}
-                                        className={`text-xs font-semibold pb-1 border-b-2 transition-colors ${codeTab === 'component' ? 'text-white border-white' : 'text-hub-muted border-transparent hover:text-white'}`}
-                                    >
-                                        {selectedStack.includes('react') ? 'Component Code' : 'Source Code'} *
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setCodeTab('css')}
-                                        className={`text-xs font-semibold pb-1 border-b-2 transition-colors ${codeTab === 'css' ? 'text-white border-white' : 'text-hub-muted border-transparent hover:text-white'}`}
-                                    >
-                                        CSS <span className="text-[10px] font-normal text-hub-muted">(optional)</span>
-                                    </button>
+                                    {/* Component Name */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-neutral-300 mb-2">Component Name</label>
+                                        <input
+                                            name="title"
+                                            value={form.title}
+                                            onChange={handleChange}
+                                            placeholder="e.g. StripePaymentForm"
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                        />
+                                        {fieldErrors.title && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.title[0]}</p>}
+                                    </div>
                                 </div>
 
-                                {codeTab === 'component' ? (
-                                    <textarea
-                                        name="raw_code"
-                                        value={form.raw_code}
-                                        onChange={handleChange}
-                                        rows={8}
-                                        placeholder="// Paste your React/TypeScript component here..."
-                                        className="w-full bg-hub-surface border border-hub-border rounded-md px-3 py-2 text-hub-text text-xs font-mono placeholder:text-hub-muted/50 focus:outline-none focus:border-white/30 transition-colors resize-y"
-                                    />
-                                ) : (
-                                    <textarea
-                                        name="css_code"
-                                        value={form.css_code}
-                                        onChange={handleChange}
-                                        rows={8}
-                                        placeholder="/* Optional CSS styles. If you strictly use Tailwind, leave this blank */"
-                                        className="w-full bg-hub-surface border border-hub-border rounded-md px-3 py-2 text-hub-text text-xs font-mono placeholder:text-hub-muted/50 focus:outline-none focus:border-white/30 transition-colors resize-y"
-                                    />
-                                )}
-                                {fieldErrors.raw_code && <p className="text-red-400 text-xs mt-1">{fieldErrors.raw_code[0]}</p>}
-                            </div>
-
-                            {/* Global API error */}
-                            {error && (
-                                <div className="bg-red-500/10 border border-red-500/30 rounded-md px-3 py-2.5 text-red-400 text-xs">
-                                    ⚠ {error}
+                                {/* Stack Picker */}
+                                <div>
+                                    <label className="block text-sm font-medium text-neutral-300 mb-2">Framework / Stack</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {STACKS.map((s) => {
+                                            const isSelected = selectedStack === s.id;
+                                            return (
+                                                <button
+                                                    key={s.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedStack(s.id)}
+                                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-all duration-200 ${
+                                                        isSelected
+                                                            ? s.activeRing + ' text-white shadow-lg'
+                                                            : 'border-white/10 bg-white/[0.02] text-neutral-400 hover:bg-white/[0.06] hover:text-neutral-200'
+                                                    }`}
+                                                >
+                                                    <span className={`text-base ${!isSelected ? s.color : ''}`}>{s.icon}</span>
+                                                    <span>{s.label}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            )}
 
-                            {/* Actions */}
-                            <div className="flex justify-end gap-2 pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setOpen(false)}
-                                    className="text-hub-muted text-xs px-4 py-2 rounded-md hover:text-hub-text transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="bg-white text-black text-xs font-semibold px-4 py-2 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    {loading ? 'Submitting...' : 'Submit Component'}
-                                </button>
-                            </div>
-                        </form>
+                                {/* Description */}
+                                <div>
+                                    <label className="block text-sm font-medium text-neutral-300 mb-2">Description</label>
+                                    <textarea
+                                        name="description"
+                                        value={form.description}
+                                        onChange={handleChange}
+                                        rows={2}
+                                        placeholder="Briefly describe what this component does and when to use it..."
+                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none"
+                                    />
+                                    {fieldErrors.description && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.description[0]}</p>}
+                                </div>
+
+                                {/* Code Editor Area */}
+                                <div className="rounded-xl border border-white/10 bg-[#0F0F13] overflow-hidden">
+                                    {/* Segmented Control Tabs */}
+                                    <div className="flex items-center gap-1 p-1.5 bg-black/40 border-b border-white/10">
+                                        <button
+                                            type="button"
+                                            onClick={() => setCodeTab('component')}
+                                            className={`flex-1 text-sm font-medium py-1.5 rounded-md transition-all ${codeTab === 'component' ? 'bg-white/10 text-white shadow-sm' : 'text-neutral-400 hover:text-white hover:bg-white/5'}`}
+                                        >
+                                            Source Code
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setCodeTab('css')}
+                                            className={`flex-1 text-sm font-medium py-1.5 rounded-md transition-all ${codeTab === 'css' ? 'bg-white/10 text-white shadow-sm' : 'text-neutral-400 hover:text-white hover:bg-white/5'}`}
+                                        >
+                                            CSS <span className="opacity-50 font-normal">(Optional)</span>
+                                        </button>
+                                    </div>
+
+                                    <div className="p-2">
+                                        {codeTab === 'component' ? (
+                                            <textarea
+                                                name="raw_code"
+                                                value={form.raw_code}
+                                                onChange={handleChange}
+                                                rows={8}
+                                                spellCheck={false}
+                                                placeholder="// Paste your component source code here..."
+                                                className="w-full bg-transparent p-2 text-neutral-300 text-sm font-mono placeholder:text-neutral-600 focus:outline-none resize-y min-h-[150px]"
+                                            />
+                                        ) : (
+                                            <textarea
+                                                name="css_code"
+                                                value={form.css_code}
+                                                onChange={handleChange}
+                                                rows={8}
+                                                spellCheck={false}
+                                                placeholder="/* Add supporting CSS styles here... */"
+                                                className="w-full bg-transparent p-2 text-neutral-300 text-sm font-mono placeholder:text-neutral-600 focus:outline-none resize-y min-h-[150px]"
+                                            />
+                                        )}
+                                    </div>
+                                    {fieldErrors.raw_code && <div className="px-4 pb-3"><p className="text-red-400 text-xs">{fieldErrors.raw_code[0]}</p></div>}
+                                </div>
+
+                                {/* Image Upload Dropzone */}
+                                <div>
+                                    <label className="block text-sm font-medium text-neutral-300 mb-2">Preview Image <span className="text-neutral-500 font-normal">(Optional)</span></label>
+                                    <label className="relative flex flex-col items-center justify-center w-full h-32 transition-all bg-black/20 border-2 border-dashed border-white/10 rounded-xl cursor-pointer hover:bg-black/40 hover:border-blue-500/50 focus:outline-none overflow-hidden group">
+                                        <input
+                                            type="file"
+                                            name="image"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleImageChange}
+                                        />
+                                        {imagePreview ? (
+                                            <>
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-40 transition-opacity duration-300" />
+                                                <div className="relative z-10 flex items-center gap-2 bg-black/60 text-white text-sm font-medium px-4 py-2 rounded-full backdrop-blur-md border border-white/10 shadow-lg translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                                                    Replace Image
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="flex flex-col items-center gap-2 text-neutral-500 group-hover:text-neutral-300 transition-colors">
+                                                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                                                <span className="text-sm font-medium">Click to browse or drop an image</span>
+                                            </div>
+                                        )}
+                                    </label>
+                                </div>
+
+                                {error && (
+                                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-start gap-3">
+                                        <svg className="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                        <p className="text-red-400 text-sm leading-relaxed">{error}</p>
+                                    </div>
+                                )}
+                            </form>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="px-6 py-4 border-t border-white/5 bg-black/20 flex items-center justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setOpen(false)}
+                                className="text-neutral-400 text-sm font-medium px-4 py-2.5 rounded-lg hover:text-white hover:bg-white/5 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                form="component-form"
+                                disabled={loading}
+                                className="bg-white text-black text-sm font-semibold px-6 py-2.5 rounded-lg hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
+                            >
+                                {loading ? 'Submitting...' : 'Submit Component'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
