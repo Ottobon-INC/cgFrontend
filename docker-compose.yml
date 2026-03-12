@@ -13,7 +13,7 @@ services:
         - VITE_API_URL=http://localhost:8500
         - NEXT_PUBLIC_API_URL=http://localhost:8500
     ports:
-      - "3500:80"    # Expose container's port 80 to the host's port 3500
+      - "3500:3500"    # Expose container's port 3500 to the host's port 3500
     restart: unless-stopped
     environment:
       - NODE_ENV=production

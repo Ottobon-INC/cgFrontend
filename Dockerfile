@@ -20,19 +20,18 @@ COPY . .
 # Build the Vite application (outputs to /app/dist)
 RUN npm run build
 
-# Stage 2: Serve compiled code statically with Nginx
-FROM nginx:alpine
+# Stage 2: Serve compiled code statically with Node
+FROM node:20-alpine
 
-# Remove default nginx static assets
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
+
+# Install static file server
+RUN npm install -g serve
 
 # Copy built assets from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist ./dist
 
-# Replace default nginx configuration with our SPA (Single Page App) valid configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 3500
 
-EXPOSE 80
-
-# Run nginx in foreground
-CMD ["nginx", "-g", "daemon off;"]
+# Run serve on port 3500
+CMD ["serve", "-s", "dist", "-l", "3500"]
