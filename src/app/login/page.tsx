@@ -42,27 +42,28 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-hub-bg flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-hub-surface border border-hub-border rounded-xl p-8 shadow-2xl">
-                <div className="mb-8 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                        <h1 className="text-2xl font-bold text-hub-text tracking-tight">
-                            ottobon<span className="text-hub-muted">hub</span>
+        <div className="min-h-screen bg-[#0a0a0c] flex items-center justify-center p-4 selection:bg-white/10 selection:text-white">
+            <div className="max-w-[420px] w-full bg-[#111113] border border-white/5 rounded-2xl p-8 shadow-2xl ring-1 ring-white/[0.02]">
+                <div className="mb-10 text-center flex flex-col items-center">
+                    <div className="flex items-center gap-2.5 mb-3">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]" />
+                        <h1 className="text-2xl font-bold text-white tracking-tight">
+                            ottobon<span className="text-neutral-500 font-medium">hub</span>
                         </h1>
                     </div>
-                    <p className="text-hub-muted text-sm">Sign in to your account</p>
+                    <p className="text-neutral-400 text-sm">Sign in to your account</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     {error && (
-                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-md">
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3.5 rounded-lg flex items-center gap-2">
+                            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                             {error}
                         </div>
                     )}
 
-                    <div>
-                        <label className="block text-xs font-medium text-hub-muted uppercase tracking-wider mb-1">
+                    <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest pl-1">
                             Email
                         </label>
                         <input
@@ -70,17 +71,17 @@ export default function LoginPage() {
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-hub-bg border border-hub-border rounded-md px-3 py-2 text-sm text-hub-text focus:outline-none focus:border-white/20 transition-colors"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
                             placeholder="you@company.com"
                         />
                     </div>
 
-                    <div>
-                        <div className="flex items-center justify-between mb-1">
-                            <label className="block text-xs font-medium text-hub-muted uppercase tracking-wider">
+                    <div className="space-y-1.5">
+                        <div className="flex items-center justify-between pl-1">
+                            <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest">
                                 Password
                             </label>
-                            <Link to="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                            <Link to="/forgot-password" className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors">
                                 Forgot password?
                             </Link>
                         </div>
@@ -89,7 +90,7 @@ export default function LoginPage() {
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-hub-bg border border-hub-border rounded-md px-3 py-2 text-sm text-hub-text focus:outline-none focus:border-white/20 transition-colors"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
                             placeholder="••••••••"
                         />
                     </div>
@@ -97,14 +98,14 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-white text-black hover:bg-gray-200 transition-colors font-medium py-2 rounded-md text-sm flex items-center justify-center mt-6"
+                        className="w-full bg-white text-black hover:bg-neutral-200 transition-all font-bold py-3 text-sm flex items-center justify-center mt-8 rounded-xl ring-1 ring-inset ring-black/10 shadow-lg disabled:opacity-50"
                     >
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sign In'}
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'}
                     </button>
 
-                    <p className="text-center text-xs text-hub-muted mt-4">
+                    <p className="text-center text-sm font-medium text-neutral-500 mt-6">
                         Don't have an account?{' '}
-                        <Link to="/register" className="text-blue-400 hover:text-blue-300 transition-colors">
+                        <Link to="/register" className="text-blue-400 hover:text-blue-300 transition-colors ml-1">
                             Request Access
                         </Link>
                     </p>
