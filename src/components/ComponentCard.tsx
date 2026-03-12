@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Component } from '@/types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 const INTENT_DELAY = 400;
-const EXPANDED_WIDTH = 560;
-const EXPANDED_HEIGHT = 280;
+const EXPANDED_WIDTH = 640;
+const EXPANDED_HEIGHT = 320;
 const CODE_PREVIEW_LINES = 14;
 
 interface ComponentCardProps {
@@ -17,6 +17,26 @@ interface ComponentCardProps {
 }
 
 const SPRING = { type: 'spring', stiffness: 320, damping: 30, mass: 0.7 } as const;
+
+// ─── Avatar Gradient Helper ───────────────────────────────────────────────────
+
+const AVATAR_GRADIENTS = [
+    'from-rose-500 to-orange-400',
+    'from-blue-500 to-cyan-400',
+    'from-emerald-500 to-teal-400',
+    'from-purple-500 to-indigo-400',
+    'from-pink-500 to-rose-400',
+    'from-amber-500 to-yellow-400',
+];
+
+const getAvatarGradient = (name: string) => {
+    if (!name) return AVATAR_GRADIENTS[0];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
+};
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -36,13 +56,6 @@ const CopyIcon = () => (
 const CheckIcon = () => (
     <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12" />
-    </svg>
-);
-
-const UserIcon = () => (
-    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
     </svg>
 );
 
@@ -84,27 +97,27 @@ function highlight(line: string): React.ReactNode[] {
 }
 
 function CodePreview({ code }: { code: string }) {
-    const lines = code.split('\n').slice(0, CODE_PREVIEW_LINES);
-    const total = code.split('\n').length;
-    const hidden = Math.max(0, total - CODE_PREVIEW_LINES);
+    const lines = code.split('\n');
 
     return (
-        <div className="flex flex-col h-full rounded-lg overflow-hidden ring-1 ring-inset ring-white/[0.08]">
-            <div className="flex items-center gap-1.5 px-3 py-2 bg-neutral-950 border-b border-white/[0.06] shrink-0">
+        <div 
+            className="flex flex-col h-full rounded-lg overflow-hidden ring-1 ring-inset ring-white/[0.08] bg-black/40 backdrop-blur-md cursor-auto"
+            onClick={(e) => e.stopPropagation()}
+        >
+            <div className="flex items-center gap-1.5 px-3 py-2 bg-white/[0.02] border-b border-white/[0.06] shrink-0">
                 <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
                 <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
                 <span className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
                 <span className="ml-2 text-[10px] text-neutral-500 font-mono">Component.tsx</span>
-                {hidden > 0 && <span className="ml-auto text-[9px] text-neutral-600 font-mono">+{hidden} lines</span>}
             </div>
-            <div className="flex-1 bg-neutral-950 overflow-hidden relative">
-                <pre className="h-full text-[10.5px] leading-[1.65] overflow-hidden"
+            <div className="flex-1 overflow-y-auto overflow-x-auto relative">
+                <pre className="h-full text-[10.5px] leading-[1.65] pb-4"
                     style={{ fontFamily: "'JetBrains Mono','Fira Code','Consolas',monospace" }}>
                     <table className="w-full border-collapse">
                         <tbody>
                             {lines.map((line, i) => (
-                                <tr key={i} className="group hover:bg-white/[0.02]">
-                                    <td className="select-none text-right pr-3 pl-2 text-neutral-700 group-hover:text-neutral-500 transition-colors"
+                                <tr key={i} className="group hover:bg-white/[0.05]">
+                                    <td className="select-none text-right pr-3 pl-2 text-neutral-600 group-hover:text-neutral-400 transition-colors"
                                         style={{ minWidth: '32px', verticalAlign: 'top', paddingTop: '1px' }}>
                                         {i + 1}
                                     </td>
@@ -117,7 +130,6 @@ function CodePreview({ code }: { code: string }) {
                         </tbody>
                     </table>
                 </pre>
-                <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-t from-neutral-950 to-transparent pointer-events-none" />
             </div>
         </div>
     );
@@ -126,12 +138,15 @@ function CodePreview({ code }: { code: string }) {
 // ─── Right panel: component metadata ─────────────────────────────────────────
 function RightPanel({ component }: { component: Component }) {
     return (
-        <div className="flex flex-col gap-3 h-full overflow-y-auto pr-0.5">
+        <div 
+            className="flex flex-col gap-3 shrink-0 pr-0.5 cursor-auto"
+            onClick={(e) => e.stopPropagation()}
+        >
             {/* Description */}
             {component.description && (
                 <div>
-                    <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest mb-1">About</p>
-                    <p className="text-[11px] text-neutral-300 leading-relaxed line-clamp-4">
+                    <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-1">About</p>
+                    <p className="text-[11px] text-neutral-200 leading-relaxed line-clamp-4">
                         {component.description}
                     </p>
                 </div>
@@ -139,8 +154,8 @@ function RightPanel({ component }: { component: Component }) {
 
             {/* Stack */}
             <div>
-                <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Stack</p>
-                <span className="inline-block px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-medium ring-1 ring-inset ring-indigo-500/20 uppercase tracking-wide">
+                <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Stack</p>
+                <span className="inline-block px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-neutral-300 text-[10px] font-medium uppercase tracking-wide">
                     {component.stack ?? 'React · TS'}
                 </span>
             </div>
@@ -148,23 +163,15 @@ function RightPanel({ component }: { component: Component }) {
             {/* Author */}
             {component.author_name && (
                 <div>
-                    <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Author</p>
-                    <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-400 flex items-center justify-center text-[9px] font-bold text-white shrink-0">
+                    <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Author</p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <div className={`w-5 h-5 rounded-full bg-gradient-to-tr ${getAvatarGradient(component.author_name)} flex items-center justify-center text-[9px] font-bold text-white shrink-0 shadow-sm border border-white/10`}>
                             {component.author_name.charAt(0).toUpperCase()}
                         </div>
-                        <span className="text-[11px] text-neutral-200 truncate">{component.author_name}</span>
+                        <span className="text-[11px] text-neutral-200 font-medium truncate">{component.author_name}</span>
                     </div>
                 </div>
             )}
-
-            {/* Usage */}
-            <div>
-                <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Usage</p>
-                <p className="text-[11px] text-neutral-300">
-                    <span className="text-neutral-100 font-semibold">{component.usage_count ?? 0}</span> injection{component.usage_count !== 1 ? 's' : ''}
-                </p>
-            </div>
         </div>
     );
 }
@@ -172,13 +179,12 @@ function RightPanel({ component }: { component: Component }) {
 // ─── Wide expanded overlay ────────────────────────────────────────────────────
 function ExpandedCard({
     component, likes, liked, copied, expandUp,
-    onLike, onCopy, rect, originX, onMouseEnter, onMouseLeave,
+    onLike, onCopy, onNavigate, rect, originX, onMouseEnter, onMouseLeave,
 }: {
     component: Component; likes: number; liked: boolean; copied: boolean; expandUp: boolean;
-    onLike: (e: React.MouseEvent) => void; onCopy: (e: React.MouseEvent) => void;
+    onLike: (e: React.MouseEvent) => void; onCopy: (e: React.MouseEvent) => void; onNavigate: () => void;
     rect: DOMRect; originX: number; onMouseEnter: () => void; onMouseLeave: () => void;
 }) {
-    // Vertical anchor
     const topStyle = expandUp
         ? rect.top + window.scrollY - EXPANDED_HEIGHT + rect.height + 8
         : rect.top + window.scrollY - 8;
@@ -213,105 +219,113 @@ function ExpandedCard({
         <motion.div
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            className="fixed z-[9999] rounded-xl ring-1 ring-inset ring-white/[0.12] shadow-[0_32px_80px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.04)] w-[calc(100vw-32px)] md:w-[560px]"
-            style={{
-                top: topStyle,
-                left: originX + window.scrollX,
-                background: '#141414',
-            }}
-            initial={{ opacity: 0, scale: 0.97, y: yFrom }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: yFrom, transition: { duration: 0.14 } }}
-            transition={SPRING}
+            onClick={onNavigate}
+            className="fixed z-[9999] rounded-2xl ring-1 ring-inset ring-white/20 shadow-[0_0_50px_rgba(0,0,0,0.5),0_32px_80px_rgba(0,0,0,0.8)] w-[calc(100vw-32px)] md:w-[640px] group/expanded bg-[#111] cursor-pointer"
+            style={{ top: topStyle, left: originX + window.scrollX }}
+            initial={{ opacity: 0, scale: 0.95, y: yFrom }}
+            animate={{ opacity: 1, scale: 1.02, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: yFrom, transition: { duration: 0.14 } }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
         >
-            {/* Top bar - Ensure relative for tooltip positioning */}
-            <div className="relative flex items-center gap-3 px-4 py-3 border-b border-white/[0.07] bg-neutral-900/60 rounded-t-xl">
-                <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-neutral-100 tracking-tight truncate">{component.title}</h3>
-                    {component.category && component.category !== 'uncategorized' && (
-                        <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-[9px] font-medium uppercase tracking-wider ring-1 ring-inset ring-indigo-500/20 capitalize">
-                            {component.category.replace('-', ' ')}
-                        </span>
-                    )}
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                    <div
-                        className="relative"
-                        onMouseEnter={handleLikeMouseEnter}
-                        onMouseLeave={handleLikeMouseLeave}
-                    >
-                        <button onClick={onLike}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 ${liked ? 'text-rose-400 bg-rose-400/10 border-rose-500/30'
-                                : 'text-neutral-400 bg-neutral-800/60 border-white/10 hover:border-white/25 hover:text-neutral-200'
-                                }`}>
-                            <HeartIcon filled={liked} /><span>{likes}</span>
-                        </button>
-
-                        {/* Likers tooltip - Updated positioning and z-index */}
-                        <AnimatePresence>
-                            {tipVisible && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10, x: '-50%' }}
-                                    animate={{ opacity: 1, y: 0, x: '-50%' }}
-                                    exit={{ opacity: 0, y: 5, x: '-50%' }}
-                                    className="absolute bottom-full left-1/2 mb-3 z-[10001]"
-                                >
-                                    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg shadow-2xl px-3 py-2.5 min-w-[140px] max-w-[200px]">
-                                        {tipLoading ? (
-                                            <div className="flex items-center justify-center py-1">
-                                                <svg className="w-3.5 h-3.5 animate-spin text-neutral-500" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                                </svg>
-                                            </div>
-                                        ) : likers.length === 0 ? (
-                                            <p className="text-neutral-500 text-[10px] text-center">No likes yet</p>
-                                        ) : (
-                                            <>
-                                                <p className="text-[8px] font-bold text-neutral-500 uppercase tracking-widest mb-2">Liked by</p>
-                                                <ul className="space-y-1.5">
-                                                    {likers.slice(0, 5).map((name, i) => (
-                                                        <li key={i} className="flex items-center gap-2">
-                                                            <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-rose-500 to-orange-400 flex items-center justify-center text-[8px] font-bold text-white shrink-0">
-                                                                {name.charAt(0).toUpperCase()}
-                                                            </div>
-                                                            <span className="text-[11px] text-neutral-200 truncate">{name}</span>
-                                                        </li>
-                                                    ))}
-                                                    {likers.length > 5 && (
-                                                        <li className="text-[9px] text-neutral-500 pl-6">+{likers.length - 5} others</li>
-                                                    )}
-                                                </ul>
-                                            </>
-                                        )}
-                                    </div>
-                                    {/* Arrow */}
-                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white/10" />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+            <div className="relative z-10 flex flex-col h-full rounded-2xl">
+                {/* Top bar */}
+                <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10 bg-white/5 rounded-t-2xl">
+                    <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-bold text-white tracking-tight truncate drop-shadow-md">
+                            {component.title}
+                        </h3>
+                        {component.category && component.category !== 'uncategorized' && (
+                            <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-md bg-white/5 border border-white/10 text-neutral-300 text-[10px] font-medium capitalize tracking-wide">
+                                {component.category.replace('-', ' ')}
+                            </span>
+                        )}
                     </div>
-                    <button onClick={onCopy}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 ${copied ? 'text-emerald-400 bg-emerald-400/10 border-emerald-500/30'
-                            : 'text-neutral-400 bg-neutral-800/60 border-white/10 hover:border-white/25 hover:text-neutral-200'
-                            }`}>
-                        {copied ? <CheckIcon /> : <CopyIcon />}<span>{copied ? 'Copied!' : 'Copy'}</span>
-                    </button>
-                    <Link to={`/components/${component.id}`} onClick={e => e.stopPropagation()}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-900 hover:bg-white ring-1 ring-inset ring-white/20 transition-all duration-150">
-                        View <ArrowIcon />
-                    </Link>
-                </div>
-            </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <div className="relative" onMouseEnter={handleLikeMouseEnter} onMouseLeave={handleLikeMouseLeave}>
+                            <button onClick={onLike}
+                                className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border transition-all duration-200 shadow-lg ${liked ? 'text-rose-400 bg-rose-500/20 border-rose-500/40'
+                                    : 'text-neutral-300 bg-black/40 border-white/10 hover:border-white/30 hover:bg-black/60'
+                                    }`}>
+                                <HeartIcon filled={liked} /><span>{likes}</span>
+                            </button>
 
-            {/* Body */}
-            <div className="flex flex-col md:flex-row rounded-b-xl overflow-hidden md:h-[220px]">
-                <div className="flex-1 min-w-0 p-3 md:pr-1.5 h-[200px] md:h-auto">
-                    <CodePreview code={component.raw_code} />
+                            <AnimatePresence>
+                                {tipVisible && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, x: '-50%' }}
+                                        animate={{ opacity: 1, y: 0, x: '-50%' }}
+                                        exit={{ opacity: 0, y: 5, x: '-50%' }}
+                                        className="absolute bottom-full left-1/2 mb-3 z-[10001]"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <div className="bg-[#111] border border-white/10 rounded-xl shadow-2xl px-4 py-3 min-w-[160px] backdrop-blur-xl relative">
+                                            {tipLoading ? (
+                                                <div className="flex items-center justify-center py-1">
+                                                    <svg className="w-4 h-4 animate-spin text-neutral-400" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                    </svg>
+                                                </div>
+                                            ) : likers.length === 0 ? (
+                                                <p className="text-neutral-500 text-[11px] text-center font-medium">No likes yet</p>
+                                            ) : (
+                                                <>
+                                                    <p className="text-[9px] font-black text-neutral-500 uppercase tracking-[0.2em] mb-2.5">Liked by</p>
+                                                    <ul className="space-y-2">
+                                                        {likers.slice(0, 5).map((name, i) => (
+                                                            <li key={i} className="flex items-center gap-2.5">
+                                                                <div className={`w-5 h-5 shrink-0 rounded-full bg-gradient-to-tr ${getAvatarGradient(name)} flex items-center justify-center text-[10px] font-black text-white`}>
+                                                                    {name.charAt(0).toUpperCase()}
+                                                                </div>
+                                                                <span className="text-[12px] text-neutral-200 font-medium truncate">{name}</span>
+                                                            </li>
+                                                        ))}
+                                                        {likers.length > 5 && (
+                                                            <li className="text-[10px] text-neutral-500 pl-7 font-medium">+{likers.length - 5} others</li>
+                                                        )}
+                                                    </ul>
+                                                </>
+                                            )}
+                                        </div>
+                                        <svg className="absolute left-1/2 -translate-x-1/2 top-full w-3 h-1.5 text-white/10" viewBox="0 0 12 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M6 6L0 0H12L6 6Z" fill="#111" />
+                                            <path d="M6 6L0 0H12L6 6Z" stroke="currentColor" strokeWidth="1" />
+                                        </svg>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                        <button onClick={onCopy}
+                            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border transition-all duration-200 shadow-lg ${copied ? 'text-emerald-400 bg-emerald-500/20 border-emerald-500/40'
+                                : 'text-neutral-300 bg-black/40 border-white/10 hover:border-white/30 hover:bg-black/60'
+                                }`}>
+                            {copied ? <CheckIcon /> : <CopyIcon />}<span>{copied ? 'Copied!' : 'Copy'}</span>
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); onNavigate(); }}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black bg-white text-black hover:bg-neutral-200 transition-all duration-200 shadow-lg shadow-white/10">
+                            View <ArrowIcon />
+                        </button>
+                    </div>
                 </div>
-                <div className="hidden md:block w-px bg-white/[0.05] shrink-0 my-3" />
-                <div className="md:w-[44%] shrink-0 p-3 md:pl-1.5 border-t border-white/[0.05] md:border-t-0 bg-neutral-900/40 md:bg-transparent max-h-[160px] md:max-h-none overflow-y-auto">
-                    <RightPanel component={component} />
+
+                {/* Body Content */}
+                <div className="relative flex flex-col md:flex-row md:h-[280px]">
+                    {/* Code Preview - Left Side */}
+                    <div className="flex-1 min-w-0 p-4 md:pr-2 h-[210px] md:h-auto">
+                        <CodePreview code={component.raw_code} />
+                    </div>
+                    
+                    <div className="hidden md:block w-px bg-white/10 shrink-0 my-4" />
+                    
+                    {/* Image & Metadata - Right Side */}
+                    <div className="md:w-[42%] shrink-0 p-4 md:pl-3 max-h-[200px] md:max-h-none overflow-y-auto flex flex-col gap-4 rounded-br-2xl custom-scrollbar">
+                        {component.image_url && (
+                            <div className="w-full h-36 shrink-0 rounded-lg overflow-hidden border border-white/5 bg-black/50 shadow-inner flex items-center justify-center p-2 cursor-auto" onClick={(e) => e.stopPropagation()}>
+                                <img src={component.image_url} alt={component.title} className="max-w-full max-h-full object-contain drop-shadow-lg" />
+                            </div>
+                        )}
+                        <RightPanel component={component} />
+                    </div>
                 </div>
             </div>
         </motion.div>
@@ -321,55 +335,63 @@ function ExpandedCard({
 // ─── Normal card ─────────────────────────────────────────────────────────────
 function CardBody({ component, liked, likes, copied, onCopy }: { component: Component; liked: boolean; likes: number; copied: boolean; onCopy: (e: React.MouseEvent) => void }) {
     return (
-        <div className="rounded-xl overflow-hidden flex flex-col bg-neutral-900/50 ring-1 ring-inset ring-white/10 transition-all duration-200 hover:bg-neutral-900/80 hover:ring-white/20">
-            {/* Thumbnail — full bleed, no padding */}
-            <div className="h-40 w-full bg-neutral-800/50 flex items-center justify-center border-b border-white/5 overflow-hidden">
+        <div className="group rounded-2xl overflow-hidden flex flex-col bg-[#111] bg-gradient-to-b from-white/[0.02] to-transparent ring-1 ring-inset ring-white/10 transition-all duration-300 hover:ring-white/20 hover:shadow-2xl hover:shadow-neutral-900/50 hover:-translate-y-1 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]">
+            {/* Thumbnail */}
+            <div className="h-44 w-full bg-[#0a0a0a] flex items-center justify-center border-b border-white/5 overflow-hidden relative">
                 {component.image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={component.image_url} alt={component.title} draggable={false}
-                        className="w-full h-full object-cover" />
+                    <>
+                        <img src={component.image_url} alt={component.title} draggable={false}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    </>
                 ) : (
-                    <svg className="w-7 h-7 text-neutral-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                        <path d="M12 2L2 12l10 10 10-10L12 2z" />
-                    </svg>
+                    <div className="flex flex-col items-center gap-2 opacity-20">
+                        <svg className="w-10 h-10 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                            <path d="M12 2L2 12l10 10 10-10L12 2z" />
+                        </svg>
+                    </div>
                 )}
             </div>
 
             {/* Content */}
-            <div className="p-4 flex flex-col flex-grow">
-                {/* Title + Badge row */}
-                <div className="flex justify-between items-start gap-2 mb-1.5 flex-wrap sm:flex-nowrap">
-                    <h3 className="text-sm font-semibold text-neutral-100 tracking-tight truncate max-w-full">
+            <div className="p-5 flex flex-col flex-grow">
+                <div className="flex justify-between items-start gap-3 mb-2 flex-wrap sm:flex-nowrap">
+                    <h3 className="text-[15px] font-bold text-white tracking-tight truncate max-w-full group-hover:text-neutral-200 transition-colors">
                         {component.title}
                     </h3>
                     {component.category && component.category !== 'uncategorized' && (
-                        <span className="shrink-0 px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-medium uppercase tracking-wider ring-1 ring-inset ring-indigo-500/20">
+                        <span className="shrink-0 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-neutral-300 text-[9px] font-semibold uppercase tracking-wider shadow-sm">
                             {component.category.replace('-', ' ')}
                         </span>
                     )}
                 </div>
 
-                {/* Description */}
-                <p className="text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-4">
+                <p className="text-[13px] text-neutral-300 leading-relaxed line-clamp-2 mb-6 font-medium">
                     {component.description}
                 </p>
 
                 {/* Footer */}
-                <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between gap-y-2 flex-wrap sm:flex-nowrap min-w-0">
-                    <div className="flex items-center gap-3 text-neutral-500 text-xs font-medium shrink-0">
-                        <button className={`flex items-center gap-1 transition-colors ${liked ? 'text-rose-400' : 'hover:text-neutral-200'}`}>
+                <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between gap-y-2 flex-wrap sm:flex-nowrap">
+                    <div className="flex items-center gap-4 text-neutral-400 text-xs font-bold shrink-0">
+                        <button className={`flex items-center gap-1.5 transition-colors ${liked ? 'text-rose-400' : 'hover:text-white'}`}>
                             <HeartIcon filled={liked} />
-                            <span>{likes}</span>
+                            <span className="tabular-nums">{likes}</span>
                         </button>
-                        <button onClick={onCopy} className={`flex items-center gap-1 transition-colors ${copied ? 'text-emerald-400' : 'hover:text-neutral-200'}`}>
+                        <button onClick={onCopy} className={`flex items-center gap-1.5 transition-colors ${copied ? 'text-emerald-400' : 'hover:text-white'}`}>
                             {copied ? <CheckIcon /> : <CopyIcon />}
                             <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>
                         </button>
                     </div>
-                    <span className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 ring-1 ring-inset ring-white/10 text-[10px] text-neutral-300 font-medium max-w-full truncate min-w-0">
-                        <UserIcon />
-                        <span className="truncate">{component.author_name ?? component.author_id?.slice(0, 8)}</span>
-                    </span>
+                    
+                    {/* Premium Author Tag with Dynamic Avatar */}
+                    <div className="flex items-center gap-2">
+                        <div className={`w-5 h-5 shrink-0 rounded-full bg-gradient-to-tr ${getAvatarGradient(component.author_name || '')} flex items-center justify-center text-[9px] font-black text-white shadow-sm ring-1 ring-inset ring-black/20`}>
+                            {(component.author_name || 'C').charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-[11px] text-neutral-200 font-medium truncate max-w-[90px]">
+                            {component.author_name ?? 'Community'}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -379,6 +401,7 @@ function CardBody({ component, liked, likes, copied, onCopy }: { component: Comp
 // ─── Main ComponentCard ───────────────────────────────────────────────────────
 export function ComponentCard({ component }: ComponentCardProps) {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const session = user ? { user } : null;
     const userId = (session?.user as { id?: string })?.id;
 
@@ -467,7 +490,7 @@ export function ComponentCard({ component }: ComponentCardProps) {
         <>
             <Link
                 to={`/components/${component.id}`}
-                className={`block transition-opacity duration-200 ${isExpanded ? 'opacity-30' : 'opacity-100'}`}
+                className={`block transition-all duration-300 ${isExpanded ? 'opacity-40 scale-[0.98]' : 'opacity-100 scale-100'}`}
                 tabIndex={isExpanded ? -1 : 0}
             >
                 <div ref={wrapperRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
@@ -480,6 +503,7 @@ export function ComponentCard({ component }: ComponentCardProps) {
                     <ExpandedCard
                         component={component} likes={likes} liked={liked} copied={copied} expandUp={expandUp}
                         onLike={handleLike} onCopy={handleCopy}
+                        onNavigate={() => navigate(`/components/${component.id}`)}
                         rect={rect} originX={originX}
                         onMouseEnter={() => { if (timerRef.current) clearTimeout(timerRef.current); setIsExpanded(true); }}
                         onMouseLeave={handleMouseLeave}
