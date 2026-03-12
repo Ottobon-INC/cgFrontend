@@ -10,10 +10,10 @@ services:
         # NOTE: Since this is evaluated by the user's browser, if the backend is hosted
         # on a remote server (e.g., your Putty droplet), this URL MUST be the public IP or 
         # domain name of your backend (e.g., http://your-server-ip:8500).
-        - VITE_API_URL=http://localhost:8500
-        - NEXT_PUBLIC_API_URL=http://localhost:8500
+        - VITE_API_URL=http://72.61.228.9:8500
+        - NEXT_PUBLIC_API_URL=http://72.61.228.9:8500
     ports:
-      - "3500:3500"    # Expose container's port 3500 to the host's port 3500
+      - "3500:3500" # Expose container's port 3500 to the host's port 3500
     restart: unless-stopped
     environment:
       - NODE_ENV=production
