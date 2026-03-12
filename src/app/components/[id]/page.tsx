@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/api';
 import { LivePlayground } from '@/components/LivePlayground';
 import { CopyCodeButton } from '@/components/CopyCodeButton';
@@ -21,6 +22,7 @@ export default function ComponentPage() {
     const navigate = useNavigate();
     const [component, setComponent] = useState<Component | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -108,16 +110,16 @@ export default function ComponentPage() {
 
                         {/* Image preview card — only when image exists */}
                         {component.image_url && (
-                            <div className="rounded-xl overflow-hidden ring-1 ring-inset ring-white/[0.08] bg-neutral-900/50">
+                            <div className="rounded-xl overflow-hidden ring-1 ring-inset ring-white/[0.08] bg-neutral-900/50 group cursor-pointer" onClick={() => setIsImageModalOpen(true)}>
                                 <div className="px-4 py-2.5 border-b border-white/[0.05] flex items-center justify-between">
                                     <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">Preview</span>
-                                    <svg className="w-3.5 h-3.5 text-neutral-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                                    <svg className="w-3.5 h-3.5 text-neutral-500 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                                 </div>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={component.image_url}
                                     alt={`Preview of ${component.title}`}
-                                    className="w-full object-cover"
+                                    className="w-full object-cover transition-opacity hover:opacity-90"
                                     style={{ maxHeight: '320px', objectFit: 'contain', background: '#0a0a0a' }}
                                 />
                             </div>
@@ -135,6 +137,39 @@ export default function ComponentPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Modal for Image Popout */}
+            <AnimatePresence>
+                {isImageModalOpen && component.image_url && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsImageModalOpen(false)}
+                        className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+                    >
+                        <motion.button
+                            className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2"
+                            onClick={(e) => { e.stopPropagation(); setIsImageModalOpen(false); }}
+                        >
+                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </motion.button>
+                        <motion.img
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            onClick={(e) => e.stopPropagation()}
+                            src={component.image_url}
+                            alt={`Preview of ${component.title}`}
+                            className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl ring-1 ring-white/10 object-contain"
+                            style={{ background: '#0a0a0a' }}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

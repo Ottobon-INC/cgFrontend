@@ -319,7 +319,7 @@ function ExpandedCard({
 }
 
 // ─── Normal card ─────────────────────────────────────────────────────────────
-function CardBody({ component, liked, likes }: { component: Component; liked: boolean; likes: number }) {
+function CardBody({ component, liked, likes, copied, onCopy }: { component: Component; liked: boolean; likes: number; copied: boolean; onCopy: (e: React.MouseEvent) => void }) {
     return (
         <div className="rounded-xl overflow-hidden flex flex-col bg-neutral-900/50 ring-1 ring-inset ring-white/10 transition-all duration-200 hover:bg-neutral-900/80 hover:ring-white/20">
             {/* Thumbnail — full bleed, no padding */}
@@ -361,9 +361,9 @@ function CardBody({ component, liked, likes }: { component: Component; liked: bo
                             <HeartIcon filled={liked} />
                             <span>{likes}</span>
                         </button>
-                        <button className="flex items-center gap-1 hover:text-neutral-200 transition-colors">
-                            <CopyIcon />
-                            <span className="hidden sm:inline">Copy</span>
+                        <button onClick={onCopy} className={`flex items-center gap-1 transition-colors ${copied ? 'text-emerald-400' : 'hover:text-neutral-200'}`}>
+                            {copied ? <CheckIcon /> : <CopyIcon />}
+                            <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>
                         </button>
                     </div>
                     <span className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 ring-1 ring-inset ring-white/10 text-[10px] text-neutral-300 font-medium max-w-full truncate min-w-0">
@@ -442,7 +442,23 @@ export function ComponentCard({ component }: ComponentCardProps) {
     const handleCopy = async (e: React.MouseEvent) => {
         e.preventDefault(); e.stopPropagation();
         try {
-            await navigator.clipboard.writeText(component.raw_code);
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(component.raw_code);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = component.raw_code;
+                textArea.style.position = "absolute";
+                textArea.style.left = "-999999px";
+                document.body.prepend(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                } catch (error) {
+                    console.error('Fallback copy failed', error);
+                } finally {
+                    textArea.remove();
+                }
+            }
             setCopied(true); setTimeout(() => setCopied(false), 2000);
         } catch { /* ignore */ }
     };
@@ -455,7 +471,7 @@ export function ComponentCard({ component }: ComponentCardProps) {
                 tabIndex={isExpanded ? -1 : 0}
             >
                 <div ref={wrapperRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-                    <CardBody component={component} liked={liked} likes={likes} />
+                    <CardBody component={component} liked={liked} likes={likes} copied={copied} onCopy={handleCopy} />
                 </div>
             </Link>
 
