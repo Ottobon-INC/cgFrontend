@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Loader2, ArrowRight, Command } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -38,35 +39,55 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4">
-            <div className="w-full max-w-sm">
-                <div className="mb-8 text-center">
-                    <h1 className="text-2xl font-bold text-white mb-2">Reset Password</h1>
-                    <p className="text-sm text-neutral-400">
-                        Enter your email to receive a password reset link.
-                    </p>
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#080808] flex flex-col items-center justify-center p-6 transition-colors duration-500">
+            {/* Subtle Grid Pattern for Texture */}
+            <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black,transparent)]" 
+                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h1v1H0z' fill='%23000' fill-opacity='.5'/%3E%3C/svg%3E")` }}>
+            </div>
+
+            <div className="w-full max-w-[400px] z-10">
+                {/* Minimalist Logo */}
+                <div className="flex justify-center mb-12">
+                    <div className="flex items-center gap-2.5">
+                        <div className="p-2 bg-black dark:bg-white rounded-lg transition-colors">
+                            <Command className="w-5 h-5 text-white dark:text-black" />
+                        </div>
+                        <span className="text-xl font-bold tracking-tighter text-black dark:text-white">
+                            ottobon<span className="opacity-40">hub</span>
+                        </span>
+                    </div>
                 </div>
 
-                <div className="bg-neutral-900/50 ring-1 ring-inset ring-white/10 rounded-2xl p-6 backdrop-blur-xl">
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Main Card */}
+                <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                    <div className="mb-8">
+                        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">Recover Password</h2>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">We'll send you a reset link.</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         {error && (
-                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-xs p-3 rounded-xl flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
                                 {error}
                             </div>
                         )}
                         {successMsg && (
-                            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm text-center">
+                            <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs p-3 rounded-xl flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                                 {successMsg}
                             </div>
                         )}
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-neutral-300 pl-1">Email address</label>
+                            <label className="text-[11px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest ml-1">
+                                Email address
+                            </label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+                                className="w-full bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3 text-sm text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-black/5 dark:focus:ring-white/5 focus:border-neutral-400 dark:focus:border-neutral-600 transition-all"
                                 placeholder="name@company.com"
                                 required
                             />
@@ -75,17 +96,29 @@ export default function ForgotPasswordPage() {
                         <button
                             type="submit"
                             disabled={loading || !!successMsg}
-                            className="w-full mt-2 bg-white text-black font-semibold rounded-xl px-4 py-2.5 text-sm hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-black dark:bg-white text-white dark:text-black hover:opacity-90 transition-all font-semibold py-3.5 text-sm rounded-xl flex items-center justify-center mt-4 group disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? 'Sending...' : successMsg ? 'Sent' : 'Send Reset Link'}
+                            {loading ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : successMsg ? (
+                                <span>Sent</span>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <span>Send Reset Link</span>
+                                    <ArrowRight className="w-4 h-4 opacity-50 group-hover:translate-x-0.5 transition-transform" />
+                                </div>
+                            )}
                         </button>
                     </form>
+                </div>
 
-                    <div className="mt-6 text-center">
-                        <Link to="/login" className="text-sm text-neutral-400 hover:text-white transition-colors">
+                <div className="mt-8 text-center">
+                    <p className="text-xs text-neutral-500">
+                        Remember your password?{' '}
+                        <Link to="/login" className="text-black dark:text-white font-semibold hover:underline decoration-neutral-500 underline-offset-4">
                             Back to login
                         </Link>
-                    </div>
+                    </p>
                 </div>
             </div>
         </div>

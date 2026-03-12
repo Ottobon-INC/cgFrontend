@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowRight, Command } from 'lucide-react';
 
 export default function RegisterPage() {
     const [email, setEmail] = useState('');
@@ -40,69 +40,96 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-hub-bg flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-hub-surface border border-hub-border rounded-xl p-8 shadow-2xl">
-                <div className="mb-8 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                        <h1 className="text-2xl font-bold text-hub-text tracking-tight">
-                            ottobon<span className="text-hub-muted">hub</span>
-                        </h1>
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#080808] flex flex-col items-center justify-center p-6 transition-colors duration-500">
+            {/* Subtle Grid Pattern for Texture */}
+            <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black,transparent)]" 
+                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h1v1H0z' fill='%23000' fill-opacity='.5'/%3E%3C/svg%3E")` }}>
+            </div>
+
+            <div className="w-full max-w-[400px] z-10">
+                {/* Minimalist Logo */}
+                <div className="flex justify-center mb-12">
+                    <div className="flex items-center gap-2.5">
+                        <div className="p-2 bg-black dark:bg-white rounded-lg transition-colors">
+                            <Command className="w-5 h-5 text-white dark:text-black" />
+                        </div>
+                        <span className="text-xl font-bold tracking-tighter text-black dark:text-white">
+                            ottobon<span className="opacity-40">hub</span>
+                        </span>
                     </div>
-                    <p className="text-hub-muted text-sm">Request access to the Component Hub</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {error && (
-                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-md">
-                            {error}
+                {/* Main Card */}
+                <div className="bg-white dark:bg-[#111] border border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                    <div className="mb-8">
+                        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 tracking-tight">Request Access</h2>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">We will notify your administrator.</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        {error && (
+                            <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-xs p-3 rounded-xl flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                                {error}
+                            </div>
+                        )}
+
+                        <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest ml-1">
+                                Work Email
+                            </label>
+                            <input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3 text-sm text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-black/5 dark:focus:ring-white/5 focus:border-neutral-400 dark:focus:border-neutral-600 transition-all"
+                                placeholder="name@company.com"
+                            />
                         </div>
-                    )}
 
-                    <div>
-                        <label className="block text-xs font-medium text-hub-muted uppercase tracking-wider mb-1">
-                            Work Email
-                        </label>
-                        <input
-                            type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-hub-bg border border-hub-border rounded-md px-3 py-2 text-sm text-hub-text focus:outline-none focus:border-white/20 transition-colors"
-                            placeholder="you@company.com"
-                        />
-                    </div>
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between px-1">
+                                <label className="text-[11px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
+                                    Password
+                                </label>
+                            </div>
+                            <input
+                                type="password"
+                                required
+                                minLength={6}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-neutral-50 dark:bg-[#181818] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3 text-sm text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-black/5 dark:focus:ring-white/5 focus:border-neutral-400 dark:focus:border-neutral-600 transition-all"
+                                placeholder="••••••••"
+                            />
+                        </div>
 
-                    <div>
-                        <label className="block text-xs font-medium text-hub-muted uppercase tracking-wider mb-1">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            required
-                            minLength={6}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-hub-bg border border-hub-border rounded-md px-3 py-2 text-sm text-hub-text focus:outline-none focus:border-white/20 transition-colors"
-                            placeholder="••••••••"
-                        />
-                    </div>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-black dark:bg-white text-white dark:text-black hover:opacity-90 transition-all font-semibold py-3.5 text-sm rounded-xl flex items-center justify-center mt-4 group"
+                        >
+                            {loading ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <span>Request Access</span>
+                                    <ArrowRight className="w-4 h-4 opacity-50 group-hover:translate-x-0.5 transition-transform" />
+                                </div>
+                            )}
+                        </button>
+                    </form>
+                </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-white text-black hover:bg-gray-200 transition-colors font-medium py-2 rounded-md text-sm flex items-center justify-center mt-6"
-                    >
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Request Access'}
-                    </button>
-
-                    <p className="text-center text-xs text-hub-muted mt-4">
+                <div className="mt-8 text-center">
+                    <p className="text-xs text-neutral-500">
                         Already have an account?{' '}
-                        <Link to="/login" className="text-blue-400 hover:text-blue-300 transition-colors">
-                            Sign In
+                        <Link to="/login" className="text-black dark:text-white font-semibold hover:underline decoration-neutral-500 underline-offset-4">
+                            Sign in instead
                         </Link>
                     </p>
-                </form>
+                </div>
             </div>
         </div>
     );
