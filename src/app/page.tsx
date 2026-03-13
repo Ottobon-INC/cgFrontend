@@ -173,7 +173,7 @@ function HomeContent() {
                         {!loading && components.length > 0 && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                                 {components.map((c) => (
-                                    <ComponentCard key={c.id} component={c} />
+                                    <ComponentCard key={c.id} component={c} onDelete={(id) => setComponents(prev => prev.filter(comp => comp.id !== id))} />
                                 ))}
                             </div>
                         )}

@@ -87,7 +87,7 @@ export default function HomePage() {
             {!loading && components.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
                     {components.map((c) => (
-                        <ComponentCard key={c.id} component={c} />
+                        <ComponentCard key={c.id} component={c} onDelete={(id) => setComponents(prev => prev.filter(comp => comp.id !== id))} />
                     ))}
                 </div>
             )}
