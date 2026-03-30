@@ -353,9 +353,9 @@ function ExpandedCard({
 // ─── Normal card ─────────────────────────────────────────────────────────────
 function CardBody({ component, liked, likes, copied, onCopy, canDelete, onDelete, isDeleting }: { component: Component; liked: boolean; likes: number; copied: boolean; onCopy: (e: React.MouseEvent) => void; canDelete?: boolean; onDelete?: (e: React.MouseEvent) => void; isDeleting?: boolean; }) {
     return (
-        <div className="group rounded-2xl overflow-hidden flex flex-col bg-[#111] bg-gradient-to-b from-white/[0.02] to-transparent ring-1 ring-inset ring-white/10 transition-all duration-300 hover:ring-white/20 hover:shadow-2xl hover:shadow-neutral-900/50 hover:-translate-y-1 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] relative">
+        <div className="group h-full rounded-2xl overflow-hidden flex flex-col bg-[#111] bg-gradient-to-b from-white/[0.02] to-transparent ring-1 ring-inset ring-white/10 transition-all duration-300 hover:ring-white/20 hover:shadow-2xl hover:shadow-neutral-900/50 hover:-translate-y-1 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] relative [mask-image:linear-gradient(white,white)]">
             {/* Thumbnail */}
-            <div className="h-44 w-full bg-[#0a0a0a] flex items-center justify-center border-b border-white/5 overflow-hidden relative">
+            <div className="h-44 w-full bg-[#0a0a0a] flex items-center justify-center border-b border-white/5 overflow-hidden rounded-t-[calc(1rem-1px)] relative">
                 {canDelete && onDelete && (
                     <button
                         onClick={onDelete}
@@ -558,10 +558,10 @@ export function ComponentCard({ component, onDelete }: ComponentCardProps) {
         <>
             <Link
                 to={`/components/${component.id}`}
-                className={`block transition-all duration-300 ${isExpanded ? 'opacity-40 scale-[0.98]' : 'opacity-100 scale-100'}`}
+                className={`block h-full transition-all duration-300 ${isExpanded ? 'opacity-40 scale-[0.98]' : 'opacity-100 scale-100'}`}
                 tabIndex={isExpanded ? -1 : 0}
             >
-                <div ref={wrapperRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                <div className="h-full" ref={wrapperRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                     <CardBody component={component} liked={liked} likes={likes} copied={copied} onCopy={handleCopy} canDelete={canDelete} onDelete={handleDeleteClick} isDeleting={isDeleting} />
                 </div>
             </Link>

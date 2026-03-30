@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import type { SandpackTemplate } from '@/types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
@@ -182,13 +183,22 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
 
     return (
         <>
-            <button
-                onClick={() => setOpen(true)}
-                className="bg-white text-black hover:bg-neutral-200 shadow-sm transition-all text-sm font-semibold px-4 py-2 rounded-lg inline-flex items-center gap-2"
-            >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
-                New Component
-            </button>
+            <StyledWrapper>
+                <button
+                    onClick={() => setOpen(true)}
+                    className="button"
+                >
+                    <span className="button__icon-wrapper">
+                        <svg viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="button__icon-svg" width={10}>
+                            <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
+                        </svg>
+                        <svg viewBox="0 0 14 15" fill="none" width={10} xmlns="http://www.w3.org/2000/svg" className="button__icon-svg button__icon-svg--copy">
+                            <path d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z" fill="currentColor" />
+                        </svg>
+                    </span>
+                    New Component
+                </button>
+            </StyledWrapper>
 
             {open && (
                 <div
@@ -425,3 +435,65 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
         </>
     );
 }
+
+const StyledWrapper = styled.div`
+  .button {
+    line-height: 1;
+    text-decoration: none;
+    display: inline-flex;
+    border: none;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: #ffffff; /* White button base */
+    color: #000000; /* Black text */
+    border-radius: 10rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    padding-left: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.3s;
+    box-shadow: 0 0 20px -5px rgba(255, 255, 255, 0.2);
+  }
+
+  .button__icon-wrapper {
+    flex-shrink: 0;
+    width: 25px;
+    height: 25px;
+    position: relative;
+    color: #ffffff; /* White icon (since background is black) */
+    background-color: #000000; /* Black icon circle */
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .button:hover {
+    background-color: #000000; /* Black button base on hover */
+    color: #ffffff; /* White text on hover */
+    box-shadow: 0 0 20px 2px rgba(255, 255, 255, 0.4); /* White glow */
+  }
+
+  .button:hover .button__icon-wrapper {
+    background-color: #ffffff; /* White icon circle on hover */
+    color: #000000; /* Black icon on hover */
+  }
+
+  .button__icon-svg--copy {
+    position: absolute;
+    transform: translate(-150%, 150%);
+  }
+
+  .button:hover .button__icon-svg:first-child {
+    transition: transform 0.3s ease-in-out;
+    transform: translate(150%, -150%);
+  }
+
+  .button:hover .button__icon-svg--copy {
+    transition: transform 0.3s ease-in-out 0.1s;
+    transform: translate(0);
+  }`;
