@@ -18,7 +18,7 @@ export type Component = {
     category?: string;
     image_url?: string;
     author_id: string;
-    author_name?: string;   // resolved via JOIN with users table
+    author_name?: string;   // resolved via JOIN with cg_users table
     usage_count: number;
     likes: number;
     user_liked?: boolean;
