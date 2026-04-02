@@ -91,13 +91,44 @@ export default function ComponentPage() {
                     {/* ── RIGHT: Meta + image ─────────────────────────────── */}
                     <div className="flex flex-col gap-6 order-1 lg:order-2">
 
-                        {/* Title / description card */}
-                        <div className="rounded-xl bg-neutral-900/50 ring-1 ring-inset ring-white/[0.08] p-5">
-                            <h1 className="text-white text-xl font-bold tracking-tight mb-1">{component.title}</h1>
-                            <p className="text-neutral-400 text-sm leading-relaxed line-clamp-4 overflow-hidden">{component.description}</p>
+                        {/* Title / details card */}
+                        <div className="rounded-xl bg-neutral-900/50 ring-1 ring-inset ring-white/[0.08] p-5 space-y-5">
+                            <div>
+                                <h1 className="text-white text-xl font-bold tracking-tight mb-5">{component.title}</h1>
+                                
+                                <div className="space-y-4">
+                                    {component.functional_purpose && (
+                                        <div>
+                                            <h3 className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Functional Purpose</h3>
+                                            <p className="text-neutral-300 text-sm leading-relaxed whitespace-pre-wrap">{component.functional_purpose}</p>
+                                        </div>
+                                    )}
+
+                                    {component.pre_requisites && (
+                                        <div>
+                                            <h3 className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Pre-Requisits</h3>
+                                            <p className="text-neutral-400 text-[13px] leading-relaxed whitespace-pre-wrap">{component.pre_requisites}</p>
+                                        </div>
+                                    )}
+
+                                    {component.component_constraint && (
+                                        <div>
+                                            <h3 className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Constraints</h3>
+                                            <p className="text-neutral-400 text-[13px] leading-relaxed whitespace-pre-wrap">{component.component_constraint}</p>
+                                        </div>
+                                    )}
+
+                                    {component.technical_implementation && (
+                                        <div>
+                                            <h3 className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Implementation</h3>
+                                            <p className="text-neutral-400 text-[13px] leading-relaxed whitespace-pre-wrap">{component.technical_implementation}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
 
                             {/* Author + likes */}
-                            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/[0.06]">
+                            <div className="flex items-center gap-4 pt-4 border-t border-white/[0.06]">
                                 <span className="flex items-center gap-1.5 text-xs text-neutral-500">
                                     <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />

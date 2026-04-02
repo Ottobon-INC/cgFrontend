@@ -12,7 +12,10 @@ export type SandpackTemplate =
 export type Component = {
     id: string;
     title: string;
-    description: string;
+    functional_purpose: string;
+    pre_requisites: string;
+    component_constraint: string;
+    technical_implementation: string;
     raw_code: string;
     stack: SandpackTemplate;
     category?: string;
@@ -56,7 +59,7 @@ export interface LeaderboardEntry {
 export interface SearchResult {
     id: string;
     title: string;
-    description: string;
+    functional_purpose: string;
     author_id: string;
     usage_count: number;
     likes: number;

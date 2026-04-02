@@ -123,7 +123,7 @@ export function CommandPalette() {
                                                 {r.title}
                                             </p>
                                             <p className="text-xs text-neutral-500 truncate mt-0.5 group-data-[selected]:text-neutral-400">
-                                                {r.description}
+                                                {r.functional_purpose}
                                             </p>
                                         </div>
                                         <div className="shrink-0 pl-2">

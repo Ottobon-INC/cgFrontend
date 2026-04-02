@@ -144,12 +144,12 @@ function RightPanel({ component }: { component: Component }) {
             className="flex flex-col gap-3 shrink-0 pr-0.5 cursor-auto"
             onClick={(e) => e.stopPropagation()}
         >
-            {/* Description */}
-            {component.description && (
+            {/* Functional Purpose */}
+            {component.functional_purpose && (
                 <div>
                     <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-1">About</p>
                     <p className="text-[11px] text-neutral-200 leading-relaxed line-clamp-4">
-                        {component.description}
+                        {component.functional_purpose}
                     </p>
                 </div>
             )}
@@ -399,7 +399,7 @@ function CardBody({ component, liked, likes, copied, onCopy, canDelete, onDelete
                 </div>
 
                 <p className="text-[13px] text-neutral-300 leading-relaxed line-clamp-2 mb-6 font-medium">
-                    {component.description}
+                    {component.functional_purpose}
                 </p>
 
                 {/* Footer */}

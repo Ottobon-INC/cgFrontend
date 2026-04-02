@@ -52,7 +52,10 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
 
     const [form, setForm] = useState({
         title: '',
-        description: '',
+        pre_requisites: '',
+        functional_purpose: '',
+        component_constraint: '',
+        technical_implementation: '',
         raw_code: '',
         css_code: '',
     });
@@ -145,7 +148,10 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     title: form.title,
-                    description: form.description,
+                    pre_requisites: form.pre_requisites,
+                    functional_purpose: form.functional_purpose,
+                    component_constraint: form.component_constraint,
+                    technical_implementation: form.technical_implementation,
                     raw_code: finalCode,
                     stack: selectedStack,
                     category: selectedCategory,
@@ -166,7 +172,7 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
             }
 
             if (imagePreview) URL.revokeObjectURL(imagePreview);
-            setForm({ title: '', description: '', raw_code: '', css_code: '' });
+            setForm({ title: '', pre_requisites: '', functional_purpose: '', component_constraint: '', technical_implementation: '', raw_code: '', css_code: '' });
             setImageFile(null);
             setImagePreview(null);
             setSelectedStack('vite-react-ts');
@@ -313,18 +319,62 @@ export function NewComponentModal({ onSuccess, categories = [], onCategoryCreate
                                     </div>
                                 </div>
 
-                                {/* Description */}
-                                <div>
-                                    <label className="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-                                    <textarea
-                                        name="description"
-                                        value={form.description}
-                                        onChange={handleChange}
-                                        rows={2}
-                                        placeholder="Briefly describe what this component does and when to use it..."
-                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none"
-                                    />
-                                    {fieldErrors.description && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.description[0]}</p>}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Pre-Requisits */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-neutral-300 mb-2">Pre-Requisits</label>
+                                        <textarea
+                                            name="pre_requisites"
+                                            value={form.pre_requisites}
+                                            onChange={handleChange}
+                                            rows={3}
+                                            placeholder="What assumes or needs to be set up..."
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-y"
+                                        />
+                                        {fieldErrors.pre_requisites && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.pre_requisites[0]}</p>}
+                                    </div>
+
+                                    {/* Functional Purpose */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-neutral-300 mb-2">Functional Purpose</label>
+                                        <textarea
+                                            name="functional_purpose"
+                                            value={form.functional_purpose}
+                                            onChange={handleChange}
+                                            rows={3}
+                                            placeholder="What does it visually and conceptually do?"
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-y"
+                                        />
+                                        {fieldErrors.functional_purpose && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.functional_purpose[0]}</p>}
+                                    </div>
+
+                                    {/* Component Constraint */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-neutral-300 mb-2">Component Constraint</label>
+                                        <textarea
+                                            name="component_constraint"
+                                            value={form.component_constraint}
+                                            onChange={handleChange}
+                                            rows={3}
+                                            placeholder="What shouldn't this be used for? Limitations..."
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-y"
+                                        />
+                                        {fieldErrors.component_constraint && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.component_constraint[0]}</p>}
+                                    </div>
+
+                                    {/* Technical Implementation */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-neutral-300 mb-2">Technical Implementation</label>
+                                        <textarea
+                                            name="technical_implementation"
+                                            value={form.technical_implementation}
+                                            onChange={handleChange}
+                                            rows={3}
+                                            placeholder="Notable inner workings, hooks, tricky bits..."
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-y"
+                                        />
+                                        {fieldErrors.technical_implementation && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.technical_implementation[0]}</p>}
+                                    </div>
                                 </div>
 
                                 {/* Code Editor Area */}

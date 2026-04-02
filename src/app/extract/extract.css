@@ -1,0 +1,121 @@
+/* ─── Atomic Extraction Engine — Scoped Design System ─────────────────────── */
+/* All tokens scoped under .extract-engine to avoid polluting the global dark theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.extract-engine {
+    /* ── Color Tokens ── */
+    --ae-bg: #E4E3E0;
+    --ae-surface: #F5F4F2;
+    --ae-ink: #141414;
+    --ae-muted: #6B6B6B;
+    --ae-border: #D1D0CC;
+    --ae-accent: #2563EB;
+    --ae-success: #16A34A;
+    --ae-error: #DC2626;
+
+    /* ── Override to light mode ── */
+    color-scheme: light;
+    background-color: var(--ae-bg);
+    color: var(--ae-ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+}
+
+/* ── Scrollbar (scoped for light theme) ── */
+.extract-engine ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.extract-engine ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.extract-engine ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 100px;
+}
+
+.extract-engine ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* ── Spinner animation for processing status ── */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ── Selection styling ── */
+.extract-engine ::selection {
+    background-color: rgba(37, 99, 235, 0.15);
+    color: var(--ae-ink);
+}
+
+/* ── Focus rings ── */
+.extract-engine button:focus-visible {
+    outline: 2px solid var(--ae-accent);
+    outline-offset: 2px;
+}
+
+/* ── Sidebar ── */
+.ae-sidebar {
+    width: 280px;
+    min-width: 280px;
+    background-color: var(--ae-surface);
+    border-right: 1px solid var(--ae-border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* ── Header bar ── */
+.ae-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ae-border);
+    background-color: var(--ae-surface);
+}
+
+.ae-header h1 {
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ae-ink);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.ae-header .ae-subtitle {
+    font-size: 11px;
+    color: var(--ae-muted);
+    margin: 0;
+    font-weight: 400;
+}
+
+/* ── Workspace ── */
+.ae-workspace {
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--ae-bg);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .ae-sidebar {
+        width: 100%;
+        min-width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--ae-border);
+        max-height: 300px;
+    }
+
+    .ae-layout {
+        flex-direction: column !important;
+    }
+}
